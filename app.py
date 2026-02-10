@@ -12,7 +12,7 @@ uploaded_file = st.sidebar.file_uploader("Choose a file")
 if uploaded_file is not None:
     bytes_data = uploaded_file.getvalue()
 
-    data = bytes_data.decode('utf-8')
+    data = bytes_data.decode('utf-8', errors='ignore')
     
     df = preprocessor.preprocess(data)
  
@@ -20,7 +20,8 @@ if uploaded_file is not None:
 
     #fetch unique users
     user_list = df['User'].unique().tolist()
-    user_list.remove('System')
+    if 'System' in user_list:
+        user_list.remove('System')
     user_list.sort()
     user_list.insert(0,'Overall')
     selected_user = st.sidebar.selectbox("Show Analusis wrt",user_list)
@@ -130,7 +131,7 @@ if uploaded_file is not None:
 
         ax.barh(most_common_words_df[0] , most_common_words_df[1])
         # plt.xticks(rotation = 'vertical')
-        st.title("Most Used Words")
+        st.title("Most common words")
         st.pyplot(fig)
         st.markdown("---")
 
