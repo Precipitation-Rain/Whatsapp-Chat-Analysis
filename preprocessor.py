@@ -3,28 +3,42 @@ import re
 
 def preprocess(data):
 
-    pattern = r'^(\d{1,2}/\d{1,2}/\d{2,4},\s\d{1,2}:\d{2}\s?(?:am|pm))\s-\s(?:(.*?):\s)?(.*)'
+    # pattern = r'^(\d{1,2}/\d{1,2}/\d{2,4},\s\d{1,2}:\d{2}\s?(?:am|pm))\s-\s(?:(.*?):\s)?(.*)'
+    pattern = r'^(\d{1,2}/\d{1,2}/\d{2,4}),\s(\d{1,2}:\d{2}(?:\s?[apAP][mM])?)\s-\s(?:(.*?):\s)?(.*)'
 
     df_data = []
 
    
+    # for line in data.split('\n'):
+    #     match = re.match(pattern, line.strip())
+    #     if match:
+    #         datetime = match.group(1)
+    #         sender = match.group(2) if match.group(2) else "System"
+    #         message = match.group(3)
+
+    #         df_data.append([sender, message , datetime])
+
     for line in data.split('\n'):
         match = re.match(pattern, line.strip())
         if match:
-            datetime = match.group(1)
-            sender = match.group(2) if match.group(2) else "System"
-            message = match.group(3)
+            date = match.group(1)
+            time = match.group(2)
+            sender = match.group(3) if match.group(3) else "System"
+            message = match.group(4)
 
-            df_data.append([sender, message , datetime])
+            df_data.append([sender, message, f"{date}, {time}"])
 
     
-    df = pd.DataFrame(df_data, columns=["User" ,  "Message", "Date-Time"])
+    # df = pd.DataFrame(df_data, columns=["User" ,  "Message", "Date-Time"])
 
-    df["Date-Time"] = pd.to_datetime(
-                    df["Date-Time"],
-                    dayfirst=True,      # because format is DD/MM/YY
-                    errors="coerce"     # if something fails, it becomes NaT instead of error
-                    )
+    # df["Date-Time"] = pd.to_datetime(
+    #                 df["Date-Time"],
+    #                 dayfirst=True,      # because format is DD/MM/YY
+    #                 errors="coerce"     # if something fails, it becomes NaT instead of error
+    #                 )
+
+    df = pd.DataFrame(df_data, columns=["User", "Message", "Date-Time"])
+    df["Date-Time"] = pd.to_datetime(df["Date-Time"], dayfirst=True, errors="coerce")
     
     df['Year'] = df['Date-Time'].dt.year
     df['month_num'] = df['Date-Time'].dt.month
